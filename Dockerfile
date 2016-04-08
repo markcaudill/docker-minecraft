@@ -18,5 +18,6 @@ RUN mkdir ${MINECRAFT_DIR} && cd ${MINECRAFT_DIR} && \
     ln -sf minecraft_server.${MINECRAFT_VERSION}.jar minecraft_server.jar && \
     echo 'eula=true' > eula.txt
 
+EXPOSE 25565
 ENV MAX_MEM=8G MIN_MEM=1G
 CMD cd ${MINECRAFT_DIR} && java -jar -Xmx${MAX_MEM} -Xms${MIN_MEM} ${MINECRAFT_DIR}/minecraft_server.jar nogui
