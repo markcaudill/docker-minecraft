@@ -1,23 +1,75 @@
-FROM fedora:latest
+FROM openjdk:16
+LABEL author="Mark Caudill <mrkc.me>"
+ENV MC_USER=minecraft \
+	MC_HOME=/home/minecraft \
+	MC_SERVER_JAR_DL=https://launcher.mojang.com/v1/objects/0a269b5f2c5b93b1712d0f5dc43b6182b9ab254e/server.jar \
+	MC_JAVA_OPTS="-Xmx1024M -Xms1024M" \
+	MC_OPTS="nogui"
+# banned-ips.json
+ENV MC_BANNED_IPS_JSON="[]"
+# banned-players.json
+ENV MC_BANNED_PLAYERS_JSON="[]"
+# eula.txt options (change to true to auto-accept)
+ENV	MC_EULA_ACCEPT=false
+# ops.json
+ENV MC_OPS_JSON="[]"
+# server.properties options
+ENV	MC_SERVER_BROADCAST_RCON_TO_OPS=true \
+	MC_SERVER_VIEW_DISTANCE=10 \
+	MC_SERVER_ENABLE_JMX_MONITORING=false \
+	MC_SERVER_SERVER_IP="" \
+	MC_SERVER_RESOURCE_PACK_PROMPT="" \
+	MC_SERVER_RCON_PORT=25575 \
+	MC_SERVER_GAMEMODE=survival \
+	MC_SERVER_SERVER_PORT=25565 \
+	MC_SERVER_ALLOW_NETHER=true \
+	MC_SERVER_ENABLE_COMMAND_BLOCK=false \
+	MC_SERVER_ENABLE_RCON=false \
+	MC_SERVER_SYNC_CHUNK_WRITES=true \
+	MC_SERVER_ENABLE_QUERY=false \
+	MC_SERVER_OP_PERMISSION_LEVEL=4 \
+	MC_SERVER_PREVENT_PROXY_CONNECTIONS=false \
+	MC_SERVER_RESOURCE_PACK="" \
+	MC_SERVER_ENTITY_BROADCAST_RANGE_PERCENTAGE=100 \
+	MC_SERVER_LEVEL_NAME=world \
+	MC_SERVER_RCON_PASSWORD="" \
+	MC_SERVER_PLAYER_IDLE_TIMEOUT=0 \
+	MC_SERVER_MOTD="A Minecraft Server" \
+	MC_SERVER_QUERY_PORT=25565 \
+	MC_SERVER_FORCE_GAMEMODE=false \
+	MC_SERVER_RATE_LIMIT=0 \
+	MC_SERVER_HARDCORE=false \
+	MC_SERVER_WHITE_LIST=false \
+	MC_SERVER_BROADCAST_CONSOLE_TO_OPS=true \
+	MC_SERVER_PVP=true \
+	MC_SERVER_SPAWN_NPCS=true \
+	MC_SERVER_SPAWN_ANIMALS=true \
+	MC_SERVER_SNOOPER_ENABLED=true \
+	MC_SERVER_DIFFICULTY=easy \
+	MC_SERVER_FUNCTION_PERMISSION_LEVEL=2 \
+	MC_SERVER_NETWORK_COMPRESSION_THRESHOLD=256 \
+	MC_SERVER_TEXT_FILTERING_CONFIG="" \
+	MC_SERVER_REQUIRE_RESOURCE_PACK=false \
+	MC_SERVER_SPAWN_MONSTERS=true \
+	MC_SERVER_MAX_TICK_TIME=60000 \
+	MC_SERVER_ENFORCE_WHITELIST=false \
+	MC_SERVER_USE_NATIVE_TRANSPORT=true \
+	MC_SERVER_MAX_PLAYERS=20 \
+	MC_SERVER_RESOURCE_PACK_SHA1="" \
+	MC_SERVER_SPAWN_PROTECTION=16 \
+	MC_SERVER_ONLINE_MODE=true \
+	MC_SERVER_ENABLE_STATUS=true \
+	MC_SERVER_ALLOW_FLIGHT=false \
+	MC_SERVER_MAX_WORLD_SIZE=29999984
+# whitelist.json
+ENV MC_WHITELIST_JSON="[]"
 
-RUN dnf -y update
-
-# Install Oracle JRE
-ENV JRE_VERSION=8u77 JRE_BUILD=b03
-RUN cd /tmp && \
-    curl -LsO -b "oraclelicense=a" "http://download.oracle.com/otn-pub/java/jdk/${JRE_VERSION}-${JRE_BUILD}/jre-${JRE_VERSION}-linux-x64.rpm" && \
-    dnf -y install /tmp/jre-${JRE_VERSION}-linux-x64.rpm && \
-    rm -f /tmp/jre-${JRE_VERSION}-linux-x64.rpm && \
-    ln -sf /usr/java/latest/bin/java /usr/bin/java
-
-# Download Minecraft
-ENV MINECRAFT_DIR=/opt/minecraft
-ENV MINECRAFT_VERSION=1.9.2
-RUN mkdir ${MINECRAFT_DIR} && cd ${MINECRAFT_DIR} && \
-    curl -sO https://s3.amazonaws.com/Minecraft.Download/versions/${MINECRAFT_VERSION}/minecraft_server.${MINECRAFT_VERSION}.jar && \
-    ln -sf minecraft_server.${MINECRAFT_VERSION}.jar minecraft_server.jar && \
-    echo 'eula=true' > eula.txt
-
-EXPOSE 25565
-ENV MAX_MEM=8G MIN_MEM=1G
-CMD cd ${MINECRAFT_DIR} && java -jar -Xmx${MAX_MEM} -Xms${MIN_MEM} ${MINECRAFT_DIR}/minecraft_server.jar nogui
+# Create and continue as non-root user
+RUN adduser -d $MC_HOME $MC_USER
+COPY config_and_run.sh $MC_HOME
+RUN chown -R $MC_USER $MC_HOME
+USER $MC_USER
+WORKDIR $MC_HOME
+RUN curl -O $MC_SERVER_JAR_DL
+EXPOSE $MC_SERVER_SERVER_PORT/tcp
+ENTRYPOINT ["./config_and_run.sh"]
