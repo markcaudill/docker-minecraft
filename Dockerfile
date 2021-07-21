@@ -1,10 +1,13 @@
 FROM openjdk:16
 LABEL author="Mark Caudill <mrkc.me>"
+
+ARG MC_SERVER_JAR_DL
+
 ENV MC_USER=minecraft \
 	MC_HOME=/home/minecraft \
-	MC_SERVER_JAR_DL=https://launcher.mojang.com/v1/objects/0a269b5f2c5b93b1712d0f5dc43b6182b9ab254e/server.jar \
 	MC_JAVA_OPTS="-Xmx1024M -Xms1024M" \
 	MC_OPTS="nogui"
+
 # banned-ips.json
 ENV MC_BANNED_IPS_JSON="[]"
 # banned-players.json
@@ -72,4 +75,5 @@ USER $MC_USER
 WORKDIR $MC_HOME
 RUN curl -O $MC_SERVER_JAR_DL
 EXPOSE $MC_SERVER_SERVER_PORT/tcp
+VOLUME ["$MC_HOME"]
 ENTRYPOINT ["./config_and_run.sh"]

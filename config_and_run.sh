@@ -69,4 +69,4 @@ EOPROPS
 echo "${MC_WHITELIST_JSON}" > whitelist.json
 
 # Start JVM from environment variables
-java "${MC_JAVA_OPTS[@]}" -jar server.jar "${MC_OPTS[@]}"
+java ${MC_JAVA_OPTS[@]} -jar server.jar ${MC_OPTS[@]}

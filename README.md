@@ -1,28 +1,24 @@
-minecraft
-=========
+# minecraft #
 
 A vanilla Minecraft server in Docker.
 
-Quickstart
-----------
+## Quickstart ##
 
 ```shell
 docker run --rm -it -e MC_EULA_ACCEPT=true \
     -p 25565:25565 \
-    -v $PWD/world:/home/minecraft/world \
     markcaudill/minecraft:1.17
 ```
 
-Configuration
--------------
+## Configuration ##
 
-### JSON Files
+### JSON Files ##
 
 Place JSON data in environment variables: `MC_BANNED_IPS_JSON`, `MC_BANNED_PLAYERS_JSON`, `MC_OPS_JSON`, `MC_WHITELIST_JSON`
 
 Example: `-e MC_OPS_JSON='[{"uuid":"abcdef","name":"fakeuser","level":"4"}]'` or `-e MC_WHITELIST_JSON=$(<whitelist.json)` if you already have a local JSON file you'd like to use.
 
-### server.properties
+### server.properties ##
 
 These variables are used to populate their corresponding parameters in the `server.properties` file.
 
